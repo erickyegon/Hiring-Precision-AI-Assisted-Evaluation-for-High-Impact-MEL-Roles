@@ -1,0 +1,3 @@
+# This file keeps the CVs directory in git
+# Place your CV files (PDF, DOCX, DOC, ZIP) in this directory for analysis
+# The actual CV files are ignored by .gitignore for privacy and size reasons

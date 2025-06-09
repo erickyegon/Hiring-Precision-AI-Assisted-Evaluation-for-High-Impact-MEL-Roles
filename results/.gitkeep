@@ -1,0 +1,3 @@
+# This file keeps the results directory in git
+# Analysis results (Excel, CSV, JSON) will be saved here
+# The actual result files are ignored by .gitignore

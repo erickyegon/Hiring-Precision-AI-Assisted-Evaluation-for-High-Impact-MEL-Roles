@@ -1,0 +1,44 @@
+[
+  {
+    "filename": "Otieno_Oduor, Michael - 2025-04-24 08-50-44.pdf",
+    "overall_score": 84.5,
+    "ranking_tier": "Excellent",
+    "category_scores": {
+      "education": 22,
+      "experience": 27,
+      "technical_skills": 26,
+      "sector_knowledge": 28,
+      "regional_experience": 24
+    },
+    "strengths": [
+      "Analysis completed"
+    ],
+    "weaknesses": [
+      "Limited experience in project management",
+      "No certification in evaluation (AEA, IOCE, etc.)"
+    ],
+    "recommendations": [
+      "Consider obtaining a certification in evaluation (AEA, IOCE, etc.)",
+      "Develop project management skills to complement MEL expertise"
+    ],
+    "key_qualifications": {
+      "highest_education": "Master's degree in Epidemiology and Population Health (MPH)",
+      "years_of_experience": "17 years",
+      "mel_experience": "Extensive experience in MEL with USAID, UNICEF, and BMGF programs",
+      "technical_expertise": "Functional knowledge of Microsoft Excel, Power BI, ArcGIS, and Tableau",
+      "sector_focus": "Health, Education, Nutrition, Humanitarian, and Energy sectors"
+    },
+    "experience_summary": "Michael has 17 years of experience in MEL with USAID, UNICEF, and BMGF programs, with a strong focus on health, education, nutrition, humanitarian, and energy sectors.",
+    "education_summary": "Michael holds a Master's degree in Epidemiology and Population Health (MPH)",
+    "technical_skills": [
+      "Microsoft Excel",
+      "Power BI",
+      "ArcGIS",
+      "Tableau",
+      "Kobo Toolbox",
+      "ODK",
+      "SurveyCTO"
+    ],
+    "fit_assessment": "Michael is a strong fit for the MEL Manager role, given his extensive MEL experience, technical skills, and development sector knowledge."
+  }
+]

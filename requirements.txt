@@ -1,0 +1,23 @@
+# Core Dependencies
+streamlit>=1.28.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Document Processing
+PyPDF2>=3.0.1
+python-docx>=0.8.11
+
+# Data Analysis & Visualization
+pandas>=2.0.0
+numpy>=1.24.0
+plotly>=5.15.0
+
+# Export & Reporting
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# AI & ML (Fallback)
+groq>=0.8.0
+
+# Optional Dependencies
+pydantic>=2.5.0

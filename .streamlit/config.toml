@@ -1,0 +1,41 @@
+# Living Goods Brand Compliant Streamlit Configuration
+# Based on Living Goods Branding Guide (August 2022)
+
+[theme]
+# Primary brand color - Living Goods Primary Blue
+primaryColor = "#005084"  # RGB: 0/80/132, CMYK: 100/44/0/40, PMS: 293
+
+# Background color - Clean white for professional appearance
+backgroundColor = "#FFFFFF"
+
+# Secondary background color - Light gray for sections
+secondaryBackgroundColor = "#F8F9FA"
+
+# Text color - Dark for readability
+textColor = "#2E3440"
+
+# Font family - Century Gothic for body text (fallback to system fonts)
+font = "sans serif"
+
+[server]
+# Server configuration for professional deployment
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+# Browser configuration
+gatherUsageStats = false
+
+[mapbox]
+# Disable mapbox token requirement
+token = ""
+
+[deprecation]
+# Handle deprecation warnings
+showPyplotGlobalUse = false
+
+[logger]
+# Logging configuration
+level = "info"
+messageFormat = "%(asctime)s %(message)s"
