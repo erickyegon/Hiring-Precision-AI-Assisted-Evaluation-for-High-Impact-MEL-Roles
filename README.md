@@ -396,4 +396,4 @@ streamlit run mel_cv_analyzer.py --server.port 8513
 
 ---
 
-*Engineered for universal recruitment excellence • Built with cutting-edge AI technology • Living Goods brand compliant*
+*Engineered for universal recruitment excellence • Built with cutting-edge AI technology *
