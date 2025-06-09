@@ -17,33 +17,52 @@ class ResultsTable:
     def create_results_dataframe(self, results: List[Any]) -> pd.DataFrame:
         """Create a comprehensive results DataFrame"""
         data = []
-        
+
         for i, result in enumerate(results, 1):
             # Handle both FlexibleAnalysisResult and CVAnalysisResult
             if hasattr(result, 'category_scores'):
                 category_scores = result.category_scores
             else:
                 category_scores = getattr(result, 'scores', {})
-            
+
+            # Get tier - handle both 'tier' and 'ranking_tier' attributes
+            tier = getattr(result, 'tier', None) or getattr(result, 'ranking_tier', 'Unknown')
+
+            # Get years of experience
+            years_exp = getattr(result, 'years_experience', 0)
+
+            # Get role fit summary
+            role_fit = (getattr(result, 'role_fit_summary', None) or
+                       getattr(result, 'fit_assessment', None) or
+                       'Analysis completed')
+
+            # Get provider
+            provider = (getattr(result, 'provider_used', None) or
+                       getattr(result, 'ai_provider', None) or
+                       'Unknown')
+
+            # Get analysis time
+            analysis_time = getattr(result, 'analysis_time', 0)
+
             row = {
                 'Rank': i,
                 'Candidate Name': self._extract_candidate_name(result.filename),
                 'Overall Score': f"{result.overall_score:.1f}%",
-                'Tier': result.tier,
+                'Tier': tier,
                 'Education': category_scores.get('education', 0),
                 'Experience': category_scores.get('experience', 0),
                 'Technical': category_scores.get('technical_skills', category_scores.get('technical', 0)),
                 'Sector Knowledge': category_scores.get('domain_knowledge', category_scores.get('sector_knowledge', 0)),
                 'Communication': category_scores.get('communication', 0),
                 'Regional Exp': category_scores.get('leadership', category_scores.get('regional_experience', 0)),
-                'Years Experience': getattr(result, 'years_experience', 0),
-                'Role Fit Summary': getattr(result, 'role_fit_summary', 'Not available'),
+                'Years Experience': years_exp,
+                'Role Fit Summary': role_fit,
                 'Filename': result.filename,
-                'Provider': getattr(result, 'provider_used', 'Unknown'),
-                'Analysis Time': f"{getattr(result, 'analysis_time', 0):.2f}s"
+                'Provider': provider,
+                'Analysis Time': f"{analysis_time:.2f}s"
             }
             data.append(row)
-        
+
         self.df = pd.DataFrame(data)
         return self.df
     

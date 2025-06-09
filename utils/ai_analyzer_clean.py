@@ -38,6 +38,39 @@ class CVAnalysisResult:
     ranking_tier: str
     ai_provider: str
 
+    # Additional properties for compatibility with results table
+    @property
+    def tier(self) -> str:
+        """Alias for ranking_tier for compatibility"""
+        return self.ranking_tier
+
+    @property
+    def years_experience(self) -> int:
+        """Extract years of experience from key qualifications"""
+        try:
+            years_str = self.key_qualifications.get("years_of_experience", "0")
+            # Extract number from string like "5 years" or "5"
+            import re
+            numbers = re.findall(r'\d+', str(years_str))
+            return int(numbers[0]) if numbers else 0
+        except:
+            return 0
+
+    @property
+    def role_fit_summary(self) -> str:
+        """Alias for fit_assessment for compatibility"""
+        return self.fit_assessment
+
+    @property
+    def provider_used(self) -> str:
+        """Alias for ai_provider for compatibility"""
+        return self.ai_provider
+
+    @property
+    def analysis_time(self) -> float:
+        """Default analysis time for compatibility"""
+        return 0.0
+
 class ProfessionalCVAnalyzer:
     """Professional CV analyzer with dual AI provider support"""
     
@@ -276,34 +309,134 @@ IMPORTANT: Respond with ONLY the JSON object, no other text.
         logger.error(f"❌ All providers failed for {filename}")
         return None
     
-    async def analyze_batch(self, cv_data: List[Dict], max_concurrent: int = 1) -> List[CVAnalysisResult]:
-        """Analyze batch of CVs with rate limiting"""
+    def batch_analyze(self, cv_data: List[Dict]) -> List[CVAnalysisResult]:
+        """Analyze batch of CVs with rate limiting (synchronous version)"""
         all_results = []
         total = len(cv_data)
-        
+
         logger.info(f"Starting professional CV analysis of {total} CVs")
-        
+
         for i, cv_item in enumerate(cv_data, 1):
             if cv_item.get("error") or not cv_item.get("text"):
                 logger.warning(f"Skipping {cv_item['filename']} due to processing error")
                 continue
-            
-            result = await self.analyze_cv(cv_item["text"], cv_item["filename"])
-            
+
+            # Use synchronous version
+            result = self.analyze_cv_sync(cv_item["text"], cv_item["filename"])
+
             if result:
                 all_results.append(result)
-            
+
             # Progress logging
             if i % 10 == 0:
                 success_rate = len(all_results) / i * 100
                 logger.info(f"📊 Progress: {i}/{total} processed, {len(all_results)} successful ({success_rate:.1f}%)")
-            
+
             # Rate limiting
             if i < total:
-                await asyncio.sleep(2)
-        
+                import time
+                time.sleep(2)
+
         logger.info(f"🎉 Analysis complete: {len(all_results)}/{total} CVs analyzed")
         return all_results
+
+    def analyze_cv_sync(self, cv_text: str, filename: str) -> Optional[CVAnalysisResult]:
+        """Synchronous version of CV analysis"""
+        logger.info(f"Analyzing CV: {filename}")
+
+        # Try Euriai first (primary provider)
+        if self.euriai_client:
+            result = self.analyze_with_euriai_sync(cv_text, filename)
+            if result:
+                logger.info(f"✅ {filename} analyzed with Euriai - Score: {result.overall_score:.1f}")
+                return result
+            else:
+                logger.warning(f"⚠️ Euriai failed for {filename}, trying Groq")
+
+        # Fallback to Groq
+        if self.groq_client:
+            result = self.analyze_with_groq_sync(cv_text, filename)
+            if result:
+                logger.info(f"✅ {filename} analyzed with Groq - Score: {result.overall_score:.1f}")
+                return result
+            else:
+                logger.error(f"❌ Groq also failed for {filename}")
+
+        logger.error(f"❌ All providers failed for {filename}")
+        return None
+
+    def analyze_with_euriai_sync(self, cv_text: str, filename: str) -> Optional[CVAnalysisResult]:
+        """Synchronous Euriai analysis"""
+        if not self.euriai_client:
+            return None
+
+        try:
+            prompt = self.create_analysis_prompt(cv_text)
+
+            if self.count_tokens(prompt) > 7000:
+                logger.warning(f"Prompt too long for {filename}, truncating")
+                cv_text = cv_text[:3000] + "...[truncated]"
+                prompt = self.create_analysis_prompt(cv_text)
+
+            messages = [
+                {"role": "system", "content": "You are an expert HR consultant. Respond with ONLY valid JSON."},
+                {"role": "user", "content": prompt}
+            ]
+
+            content = self.euriai_client.chat_completion(
+                messages=messages,
+                temperature=0.1,
+                max_tokens=2000
+            )
+
+            content = self._extract_json_from_response(content.strip())
+
+            try:
+                result_data = json.loads(content)
+                return self._create_analysis_result(filename, result_data, "Euriai")
+            except json.JSONDecodeError as e:
+                logger.error(f"Euriai JSON error for {filename}: {str(e)}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Euriai analysis error for {filename}: {str(e)}")
+            return None
+
+    def analyze_with_groq_sync(self, cv_text: str, filename: str) -> Optional[CVAnalysisResult]:
+        """Synchronous Groq analysis"""
+        if not self.groq_client:
+            return None
+
+        try:
+            prompt = self.create_analysis_prompt(cv_text)
+
+            if self.count_tokens(prompt) > 7000:
+                cv_text = cv_text[:3000] + "...[truncated]"
+                prompt = self.create_analysis_prompt(cv_text)
+
+            response = self.groq_client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=[
+                    {"role": "system", "content": "You are an expert HR consultant. Respond with ONLY valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.1,
+                max_tokens=2000
+            )
+
+            content = response.choices[0].message.content.strip()
+            content = self._extract_json_from_response(content)
+
+            try:
+                result_data = json.loads(content)
+                return self._create_analysis_result(filename, result_data, "Groq")
+            except json.JSONDecodeError as e:
+                logger.error(f"Groq JSON error for {filename}: {str(e)}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Groq analysis error for {filename}: {str(e)}")
+            return None
     
     def calculate_weighted_score(self, category_scores: Dict[str, float]) -> float:
         """Calculate weighted overall score"""
